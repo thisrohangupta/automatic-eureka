@@ -1,0 +1,2 @@
+# automatic-eureka
+python-sample
