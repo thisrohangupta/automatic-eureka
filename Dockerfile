@@ -1,27 +1,33 @@
-FROM python:3.11-slim
-
-# Set working directory
+# Build stage
+FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Cache deps first
+COPY go.mod .
+RUN go mod download
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
+# Copy source
 COPY . .
 
-# Create directory for todo data persistence
-RUN mkdir -p /app/data
+# Build static binary
+RUN CGO_ENABLED=0 GOOS=linux go build -o server ./main.go
 
-# Expose port
+# Runtime stage
+FROM alpine:3.20
+WORKDIR /app
+
+# Non-root user
+RUN adduser -D -H appuser
+
+COPY --from=builder /app/server /app/server
+COPY static ./static
+COPY templates ./templates
+# Copy existing data if present (optional)
+# COPY todos.json ./todos.json
+
+ENV PORT=5000
 EXPOSE 5000
 
-# Set environment variables
-ENV FLASK_APP=main.py
-ENV FLASK_ENV=production
-ENV PORT=5000
+USER appuser
 
-# Run the application
-CMD ["python", "main.py"]
+CMD ["/app/server"]
