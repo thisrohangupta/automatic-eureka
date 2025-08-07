@@ -117,3 +117,38 @@ This project is open source and available under the MIT License.
 ---
 
 **Enjoy staying organized with your new TodoList app! 🎉**
+
+## 🟦 Go Version (Converted)
+
+This repository now includes a Go implementation of the server.
+
+### Run locally (Go)
+
+```bash
+# From repo root
+go run main.go
+# or build
+go build -o server ./main.go
+./server
+```
+
+The server listens on `PORT` (default `5000`).
+
+### Endpoints
+- GET `/` – serves `templates/index.html`
+- GET `/static/*` – static assets
+- REST API matches the original Flask version:
+  - GET `/api/todos`
+  - POST `/api/todos`
+  - PUT `/api/todos/<id>`
+  - DELETE `/api/todos/<id>`
+
+### Persistence
+- Todos are saved to `todos.json` in the working directory.
+
+### Docker (Go)
+
+```bash
+docker build -t todolist-go .
+docker run -p 5000:5000 todolist-go
+```
